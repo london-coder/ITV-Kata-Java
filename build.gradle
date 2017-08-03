@@ -1,0 +1,19 @@
+description = 'ITV java programmer coding test'
+
+apply plugin: 'java'
+
+
+test {
+	testLogging {
+		// show test output on the command line 
+		events 'failed', 'passed'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	testCompile 'junit:junit:4.12'
+}
