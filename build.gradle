@@ -17,3 +17,33 @@ repositories {
 dependencies {
 	testCompile 'junit:junit:4.12'
 }
+
+task aggregateTestReports(type: TestReportAggregator, dependsOn: test) {
+	testResultsDir = file("${buildDir}/test-results")
+	testReportDir = file("${reportsDir}/tests")
+	projects = subprojects
+}
+build.dependsOn(aggregateTestReports)
+
+class TestReportAggregator extends Copy {
+	def projects
+		File testResultsDir
+		@OutputDirectory
+	File testReportDir
+		def TestReportAggregator() {
+			dependsOn { testTasks }
+			from { inputTestResultDirs }
+			into { testResultsDir }
+		}
+		@TaskAction
+		def aggregate() {
+			def report = new org.gradle.api.internal.tasks.testing.junit.report.DefaultTestReport(testReportDir: testReportDir, testResultsDir: testResultsDir)
+			report.generateReport()
+		}
+		def getTestTasks() {
+			projects.collect { it.tasks.withType(Test) }.flatten()
+		}
+		def getInputTestResultDirs() {
+			testTasks*.testResultsDir
+		}
+}
